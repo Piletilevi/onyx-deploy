@@ -1,0 +1,20 @@
+# WRK-304: dedicated cloudflared tunnel exposing the Onyx MCP server for Claude Tag.
+# Locally-managed tunnel (created via CLI with the tpapp.cz account cert):
+# ingress rules live in ~/.local/share/onyx-mcp-tunnel/cloudflared/config.yml,
+# credentials in the tunnel JSON next to it. Public hostname: onyx-mcp.tpapp.cz.
+# Start: docker compose -p onyx-mcp-tunnel -f docker-compose.onyx-mcp-tunnel.yml up -d
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: onyx-mcp-cloudflared
+    user: "1004:1004"
+    command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run
+    volumes:
+      - /home/martin/.local/share/onyx-mcp-tunnel/cloudflared:/etc/cloudflared:ro
+    restart: unless-stopped
+    networks:
+      - onyx_default
+
+networks:
+  onyx_default:
+    external: true
